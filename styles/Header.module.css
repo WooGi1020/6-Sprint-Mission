@@ -32,6 +32,7 @@
 .Header-btns {
   display: flex;
   align-items: center;
+  gap: 5px;
 }
 .Header-btn {
   margin-right: 30px;
