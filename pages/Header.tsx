@@ -31,10 +31,10 @@ const Header = (): JSX.Element => {
             />
           </Link>
           <ul className={styles["Header-btns"]}>
-            <Link href="/boards" className={styles[pathname === "/boards" ? "Header-btn-active" : "Header-btn"]}>
+            <Link href="/boards" className={styles[pathname.includes("/boards") ? "Header-btn-active" : "Header-btn"]}>
               <li>자유게시판</li>
             </Link>
-            <Link href="/Items" className={styles[pathname === "/Items" ? "Header-btn-active" : "Header-btn"]}>
+            <Link href="/Items" className={styles[pathname.includes("/Items") ? "Header-btn-active" : "Header-btn"]}>
               <li>중고마켓</li>
             </Link>
           </ul>
