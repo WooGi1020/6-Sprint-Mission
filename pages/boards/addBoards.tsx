@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, ChangeEvent, FormEvent } from "react";
 import Image from "next/image";
-import styles from "@/styles/WriteArticle.module.css";
+import styles from "@/styles/addBoards.module.css";
 import Router, { useRouter } from "next/router";
 import { articleRegisterValidation } from "@/utils/validations";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
