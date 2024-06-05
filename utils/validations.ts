@@ -10,3 +10,11 @@ export function articleRegisterValidation({ title, content }: articleregisterVal
     return true;
   }
 }
+
+export function commentRegisterValidation(content: string) {
+  if (content !== "") {
+    return false;
+  } else {
+    return true;
+  }
+}
