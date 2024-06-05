@@ -57,7 +57,7 @@ const BoardNavBar = () => {
     <div className={styles["board-nav-bar"]}>
       <div className={styles["board-nav-bar__top"]}>
         <h2 className={styles["board-nav-bar__title"]}>게시글</h2>
-        <Link className={styles["board-nav-bar__write-btn"]} href="/additems">
+        <Link className={styles["board-nav-bar__write-btn"]} href="/boards/WriteArticle">
           글쓰기
         </Link>
       </div>
