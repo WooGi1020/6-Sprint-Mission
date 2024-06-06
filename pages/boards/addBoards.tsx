@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, ChangeEvent, FormEvent } from "react";
 import Image from "next/image";
 import styles from "@/styles/addBoards.module.css";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { articleRegisterValidation } from "@/utils/validations";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { postArticle } from "@/lib/apis/api";
@@ -89,12 +89,12 @@ function ArticleImg({ name, value, onChange }: Props) {
 export interface ArticleValue {
   title: string;
   content: string;
-  iamge: string | null;
+  image: string | null;
 }
 
 const WriteArticle = () => {
   const [articleValue, setArticleValue] = useState<ArticleValue>({
-    iamge: null,
+    image: null,
     content: "",
     title: "",
   });
@@ -176,7 +176,7 @@ const WriteArticle = () => {
           value={articleValue.content}
         ></textarea>
       </div>
-      <ArticleImg name="articleImg" value={articleValue.iamge} onChange={handleChange} />
+      <ArticleImg name="image" value={articleValue.image} onChange={handleChange} />
     </form>
   );
 };
