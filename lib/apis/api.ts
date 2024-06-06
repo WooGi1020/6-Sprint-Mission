@@ -23,20 +23,23 @@ export type ArticlesResponse = {
   totalCount: number;
 };
 
-// 게시글 목록 받아오는 API
-export async function getArticles({
-  orderBy = "recent",
-  keyword = "",
-}: {
+export interface OrderQuery {
   orderBy?: string | string[];
   keyword?: string | string[];
-}) {
+  page?: string | string[];
+}
+
+// 게시글 목록 받아오는 API
+export async function getArticles({ orderBy = "recent", keyword = "", page = "1" }: OrderQuery) {
   const formattedOrderBy = Array.isArray(orderBy) ? orderBy[0] : orderBy;
   const formattedKeyword = Array.isArray(keyword) ? keyword[0] : keyword;
+  const formattedPage = Array.isArray(page) ? page[0] : page;
 
   const params = new URLSearchParams({
     orderBy: formattedOrderBy,
     keyword: formattedKeyword,
+    pageSize: "5",
+    page: formattedPage,
   });
   try {
     const response: AxiosResponse<ArticlesResponse> = await instance.get(`?${params.toString()}`);
