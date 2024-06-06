@@ -1,28 +1,29 @@
-import React, { useState, useEffect, MouseEvent } from "react";
-import { useRouter } from "next/router";
+import React, { useState, MouseEvent } from "react";
 import { ChangeEvent, KeyboardEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "@/styles/BoardNavBar.module.css";
 
-const BoardNavBar = () => {
+interface Props {
+  handleOrderBy: (value: string) => void;
+  handleKeyword: (value: string) => void;
+}
+
+const BoardNavBar = ({ handleOrderBy, handleKeyword }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropdownMenu, setDropdownMenu] = useState<string | null>("최신순");
-  const router = useRouter();
-  const [keyword, setKeyword] = useState(router.query.keyword || "");
-  const [orderBy, setOrderBy] = useState(router.query.orderBy || "recent");
 
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     if (value === "") {
-      setKeyword(value);
+      handleKeyword(value);
     }
   };
 
   const handleSearchInputKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Enter") {
       const { value } = e.target as HTMLInputElement;
-      setKeyword(value);
+      handleKeyword(value);
     }
   };
 
@@ -36,22 +37,12 @@ const BoardNavBar = () => {
     setIsDropdownOpen(false);
     if (textContent) {
       if (textContent === "최신순") {
-        setOrderBy("recent");
+        handleOrderBy("recent");
       } else {
-        setOrderBy("like");
+        handleOrderBy("like");
       }
     }
   };
-
-  useEffect(() => {
-    router.push({
-      pathname: "/boards",
-      query: {
-        orderBy,
-        keyword,
-      },
-    });
-  }, [keyword, orderBy]);
 
   return (
     <div className={styles["board-nav-bar"]}>
