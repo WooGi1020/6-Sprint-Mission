@@ -39,7 +39,7 @@ const Header = (): JSX.Element => {
             </Link>
           </ul>
         </div>
-        <Link href="/sign-in" className={styles["Header-login-btn"]}>
+        <Link href="/SignIn" className={styles["Header-login-btn"]}>
           로그인
         </Link>
       </header>
