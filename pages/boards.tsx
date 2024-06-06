@@ -44,9 +44,6 @@ const Board = ({ articles, totalCount }: Articles) => {
   const [pageSize, setPageSize] = useState<number>(3);
   const [articleList, setArticleList] = useState<ArticleResponse[]>(articles);
   const [orderQuery, setOrderQuery] = useState({});
-
-  const [keyword, setKeyword] = useState("");
-  const [orderBy, setOrderBy] = useState("recent");
   const [page, setPage] = useState(1);
 
   const isSmallScreen = useMediaQuery("(min-width: 380px) and (max-width: 767px)");
@@ -55,14 +52,28 @@ const Board = ({ articles, totalCount }: Articles) => {
 
   const handlePage = (value: number) => {
     setPage(value);
+    setOrderQuery((prevOrderQuery) => ({
+      ...prevOrderQuery,
+      page: value,
+    }));
   };
 
   const handleOrderBy = (value: string) => {
-    setOrderBy(value);
+    setOrderQuery((prevOrderQuery) => ({
+      ...prevOrderQuery,
+      orderBy: value,
+      page: 1,
+    }));
+    setPage(1);
   };
 
   const handleKeyword = (value: string) => {
-    setKeyword(value);
+    setOrderQuery((prevOrderQuery) => ({
+      ...prevOrderQuery,
+      keyword: value,
+      page: 1,
+    }));
+    setPage(1);
   };
 
   useEffect(() => {
@@ -73,11 +84,6 @@ const Board = ({ articles, totalCount }: Articles) => {
 
     getArticleList(orderQuery);
   }, [orderQuery]);
-
-  const getBestArticleList = async (option: number) => {
-    const { list } = await getBestArticles(option);
-    setBestArticles(list);
-  };
 
   useEffect(() => {
     if (isLargeScreen) {
@@ -90,15 +96,10 @@ const Board = ({ articles, totalCount }: Articles) => {
   }, [isLargeScreen, isMediumScreen, isSmallScreen]);
 
   useEffect(() => {
-    setOrderQuery((prevOrderQuery) => ({
-      ...prevOrderQuery,
-      page: page.toString(),
-      keyword,
-      orderBy,
-    }));
-  }, [page, keyword, orderBy]);
-
-  useEffect(() => {
+    const getBestArticleList = async (option: number) => {
+      const { list } = await getBestArticles(option);
+      setBestArticles(list);
+    };
     getBestArticleList(pageSize);
   }, [pageSize]);
 
