@@ -4,41 +4,75 @@ import styles from "@/styles/Board.module.css";
 import Article from "@/components/Article";
 import BestArticle from "@/components/BestArticle";
 import Head from "next/head";
-import { GetServerSidePropsContext } from "next";
-import { getArticles, getBestArticles, ArticleResponse } from "../lib/apis/api";
+import { GetStaticPropsContext } from "next";
+import { getArticles, getBestArticles, ArticleResponse, OrderQuery } from "../lib/apis/api";
 import useMediaQuery from "@/hooks/useMatchMedia";
 import Link from "next/link";
+import PageButton from "@/components/PageButton";
 
 export interface QueryOption {
   orderBy?: string | string[];
   keyword?: string | string[];
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const orderBy = context.query["orderBy"];
-  const keyword = context.query["keyword"];
-
-  const res = await getArticles({ orderBy, keyword });
-  const articles = res.list ?? [];
-
-  return {
-    props: {
-      articles,
-    },
-  };
+export async function getStaticProps(context: GetStaticPropsContext) {
+  try {
+    const res = await getArticles({});
+    const articles = res.list ?? [];
+    const totalCount = res.totalCount;
+    return {
+      props: {
+        articles,
+        totalCount,
+      },
+      revalidate: 10, // Revalidate the page every 10 seconds (if needed)
+    };
+  } catch {
+    return {
+      notFound: true,
+    };
+  }
 }
 
 type Articles = {
   articles: ArticleResponse[];
+  totalCount: number;
 };
 
-const Board = ({ articles }: Articles) => {
+const Board = ({ articles, totalCount }: Articles) => {
   const [bestArticles, setBestArticles] = useState<ArticleResponse[]>([]);
   const [pageSize, setPageSize] = useState<number>(3);
+  const [articleList, setArticleList] = useState<ArticleResponse[]>(articles);
+  const [orderQuery, setOrderQuery] = useState({});
+
+  const [keyword, setKeyword] = useState("");
+  const [orderBy, setOrderBy] = useState("recent");
+  const [page, setPage] = useState(1);
 
   const isSmallScreen = useMediaQuery("(min-width: 380px) and (max-width: 767px)");
   const isMediumScreen = useMediaQuery("(min-width: 768px) and (max-width: 1199px)");
   const isLargeScreen = useMediaQuery("(min-width: 1200px)");
+
+  const handlePage = (value: number) => {
+    setPage(value);
+  };
+
+  const handleOrderBy = (value: string) => {
+    setOrderBy(value);
+  };
+
+  const handleKeyword = (value: string) => {
+    setKeyword(value);
+  };
+
+  useEffect(() => {
+    const getArticleList = async (orderQuery: OrderQuery) => {
+      const { list } = await getArticles(orderQuery);
+      setArticleList(list);
+    };
+
+    getArticleList(orderQuery);
+  }, [orderQuery]);
 
   const getBestArticleList = async (option: number) => {
     const { list } = await getBestArticles(option);
@@ -56,6 +90,15 @@ const Board = ({ articles }: Articles) => {
   }, [isLargeScreen, isMediumScreen, isSmallScreen]);
 
   useEffect(() => {
+    setOrderQuery((prevOrderQuery) => ({
+      ...prevOrderQuery,
+      page: page.toString(),
+      keyword,
+      orderBy,
+    }));
+  }, [page, keyword, orderBy]);
+
+  useEffect(() => {
     getBestArticleList(pageSize);
   }, [pageSize]);
 
@@ -69,22 +112,23 @@ const Board = ({ articles }: Articles) => {
         <section className={styles["best-article-list"]}>
           {bestArticles.map((article) => {
             return (
-              <Link href={`/boards/${article.id}`} key={article.title}>
+              <Link href={`/boards/${article.id}`} key={article.id}>
                 <BestArticle {...article} />
               </Link>
             );
           })}
         </section>
-        <BoardNavBar />
+        <BoardNavBar handleOrderBy={handleOrderBy} handleKeyword={handleKeyword} />
         <section className={styles["all-article-list"]}>
-          {articles.map((article) => {
+          {articleList.map((article) => {
             return (
-              <Link href={`/boards/${article.id}`} key={article.title}>
+              <Link href={`/boards/${article.id}`} key={article.id}>
                 <Article {...article} />
               </Link>
             );
           })}
         </section>
+        <PageButton totalCount={totalCount} handlePage={handlePage} page={page} />
       </div>
     </>
   );
