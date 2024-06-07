@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import styles from "@/styles/Header.module.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -6,6 +6,13 @@ import { usePathname } from "next/navigation";
 
 const Header = (): JSX.Element => {
   const pathname = usePathname();
+  const [isLogined, setIsLogined] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) {
+      setIsLogined(true);
+    }
+  }, []);
 
   return (
     <>
@@ -39,9 +46,13 @@ const Header = (): JSX.Element => {
             </Link>
           </ul>
         </div>
-        <Link href="/SignIn" className={styles["Header-login-btn"]}>
-          로그인
-        </Link>
+        {isLogined ? (
+          <Image src="/images/Header/userProfile.png" alt="헤더 프로필 이미지" width={40} height={40} />
+        ) : (
+          <Link href="/SignIn" className={styles["Header-login-btn"]}>
+            로그인
+          </Link>
+        )}
       </header>
     </>
   );
