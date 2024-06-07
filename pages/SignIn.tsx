@@ -1,12 +1,15 @@
 import styles from "@/styles/SignIn.module.css";
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, FormEvent } from "react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { postSignIn } from "@/lib/apis/api";
+import { useRouter } from "next/router";
 
 const SignIn = () => {
   const [isSignInBtnDisabled, setIsSignInBtnDisabled] = useState(true);
   const [isPwShow, setIsPwShow] = useState(false);
+  const router = useRouter();
 
   const [isValidEmail, setIsValidEmail] = useState(true);
   const [isValidPw, setIsValidPw] = useState(true);
@@ -54,6 +57,20 @@ const SignIn = () => {
     setIsPwShow(!isPwShow);
   };
 
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const res = await postSignIn(userInfo);
+      if (res) {
+        localStorage.setItem("accessToken", res.accessToken);
+        router.push("/");
+      }
+    } catch (e) {
+      console.error(`Error : ${e}`);
+      alert("로그인에 실패했습니다.");
+    }
+  };
+
   return (
     <div className={styles["sign-in-container"]}>
       <div className={styles["sign-in-container__logo"]}>
@@ -67,7 +84,7 @@ const SignIn = () => {
         </Link>
       </div>
 
-      <form action="#" method="post" className={styles["sign-in-from"]}>
+      <form action="#" method="post" className={styles["sign-in-from"]} onSubmit={handleSubmit}>
         <div className={styles["con"]}>
           <label htmlFor="email" className={styles["sign-email-label"]}>
             이메일
