@@ -1,14 +1,16 @@
 import styles from "@/styles/SignUp.module.css";
-import React, { useState, useEffect, ChangeEvent, MouseEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, MouseEvent, FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { postSignUp } from "@/lib/apis/api";
+import { useRouter } from "next/router";
 
 const SignUp = () => {
   const [isSignUpBtnDisabled, setIsSignUpBtnDisabled] = useState(true);
 
   const [isPwShow, setIsPwShow] = useState({
     password: false,
-    passwordConfirm: false,
+    passwordConfirmation: false,
   });
 
   const [isValidEmail, setIsValidEmail] = useState(true);
@@ -19,9 +21,10 @@ const SignUp = () => {
   const [signUpInfo, setSignUpInfo] = useState({
     email: "",
     password: "",
-    matchPassword: "",
+    passwordConfirmation: "",
     nickname: "",
   });
+  const router = useRouter();
 
   const validOption = {
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -38,7 +41,7 @@ const SignUp = () => {
       signUpInfo.email &&
       signUpInfo.password &&
       signUpInfo.nickname &&
-      signUpInfo.matchPassword
+      signUpInfo.passwordConfirmation
     ) {
       setIsSignUpBtnDisabled(false);
     } else {
@@ -69,23 +72,37 @@ const SignUp = () => {
       const isValid = validOption.pw.test(value);
       setIsValidPw(isValid ? true : false);
     } else {
-      setInputValueToSignUpInfo("matchPassword", value);
+      setInputValueToSignUpInfo("passwordConfirmation", value);
       const isValid = signUpInfo.password === value;
       setIsPwMatch(isValid ? true : false);
     }
   };
 
   const handlePwShow = (e: MouseEvent) => {
-    const { className } = e.target as HTMLImageElement;
-    className.includes("re")
+    const { id } = e.target as HTMLImageElement;
+    id === "confirm"
       ? setIsPwShow((prevIsPwShow) => ({
           ...prevIsPwShow,
-          passwordConfirm: !prevIsPwShow.passwordConfirm,
+          passwordConfirmation: !prevIsPwShow.passwordConfirmation,
         }))
       : setIsPwShow((prevIsPwShow) => ({
           ...prevIsPwShow,
           password: !prevIsPwShow.password,
         }));
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const res = await postSignUp(signUpInfo);
+      if (res) {
+        localStorage.setItem("accessToken", res.accessToken);
+        router.push("/");
+      }
+    } catch (e) {
+      console.error(`Error : ${e}`);
+      alert("회원가입에 실패했습니다.");
+    }
   };
 
   return (
@@ -101,7 +118,7 @@ const SignUp = () => {
         </Link>
       </div>
 
-      <form action="#" method="post" className={styles["sign-up-from"]}>
+      <form action="#" method="post" className={styles["sign-up-from"]} onSubmit={handleSubmit}>
         <div className={styles["con"]}>
           <label htmlFor="email">이메일</label>
           <input
@@ -174,18 +191,19 @@ const SignUp = () => {
         <div className={styles.con}>
           <label htmlFor="re-pw">비밀번호 확인</label>
           <input
-            type={isPwShow.passwordConfirm ? "text" : "password"}
+            type={isPwShow.passwordConfirmation ? "text" : "password"}
             id="re-pw"
             name="re-pw"
             placeholder="비밀번호를 다시 한번 입력해주세요"
             className={styles[isPwMatch ? "sign-repw-input" : "sign-repw-input-wrong"]}
             onChange={checkInputValidity}
           />
-          {isPwShow.passwordConfirm ? (
+          {isPwShow.passwordConfirmation ? (
             <Image
               src="/images/Sign/show-icon.svg"
               alt="비밀번호 보이기 버튼"
               width={24}
+              id="confirm"
               height={24}
               className={styles["show-icon"]}
               onClick={handlePwShow}
@@ -196,6 +214,7 @@ const SignUp = () => {
               alt="비밀번호 숨기기 버튼"
               width={24}
               height={24}
+              id="confirm"
               className={styles["none-show-icon"]}
               onClick={handlePwShow}
             ></Image>
@@ -203,7 +222,7 @@ const SignUp = () => {
           {isPwMatch || <span className={styles["wrong-repw"]}>비밀번호가 일치하지 않습니다</span>}
         </div>
 
-        <button disabled={isSignUpBtnDisabled} className={styles["signup-btn"]}>
+        <button type="submit" disabled={isSignUpBtnDisabled} className={styles["signup-btn"]}>
           회원가입
         </button>
 
