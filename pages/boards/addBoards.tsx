@@ -4,11 +4,11 @@ import styles from "@/styles/addBoards.module.css";
 import { useRouter } from "next/router";
 import { articleRegisterValidation } from "@/utils/validations";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
-import { postArticle } from "@/lib/apis/api";
+import { postArticle, getImageUrl } from "@/lib/apis/api";
 
 interface Props {
   name: string;
-  value: string | null;
+  value: File | null;
   onChange: (name: string, value: File | null) => void;
 }
 
@@ -89,7 +89,17 @@ function ArticleImg({ name, value, onChange }: Props) {
 export interface ArticleValue {
   title: string;
   content: string;
-  image: string | null;
+  image: File | null;
+}
+
+interface formData {
+  title?: string;
+  content?: string;
+  image?: string | null;
+}
+
+interface ImageUrl {
+  image: string | File | null;
 }
 
 const WriteArticle = () => {
@@ -97,6 +107,14 @@ const WriteArticle = () => {
     image: null,
     content: "",
     title: "",
+  });
+  const [formData, setFormData] = useState<formData>({
+    title: "",
+    content: "",
+    image: null,
+  });
+  const [imageUrl, setImageUrl] = useState<ImageUrl>({
+    image: null,
   });
   const [isValidBtn, setIsValidBtn] = useState<boolean>(true);
   const router = useRouter();
@@ -106,6 +124,16 @@ const WriteArticle = () => {
       ...prevArticleValue,
       [name]: value,
     }));
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+    if (name === "image") {
+      setImageUrl((prevImageUrl) => ({
+        ...prevImageUrl,
+        image: value,
+      }));
+    }
   };
 
   const handleInputValuesChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -120,12 +148,24 @@ const WriteArticle = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const token = localStorage.getItem("accessToken");
     try {
-      await postArticle(articleValue);
-      router.push("/boards");
+      const res = await getImageUrl(imageUrl, token);
+      const url = res?.url;
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        image: url,
+      }));
+      try {
+        await postArticle(formData, token);
+        router.push("/boards");
+      } catch (e) {
+        console.error(`error : ${e}`);
+        alert("등록에 실패했습니다.");
+      }
     } catch (e) {
       console.error(`error : ${e}`);
-      alert("등록에 실패했습니다.");
+      alert("잘못된 파일 형식입니다.");
     }
   };
 
