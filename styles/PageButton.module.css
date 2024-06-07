@@ -14,7 +14,9 @@
   cursor: pointer;
   background-color: #fff;
   font-size: 16px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .button .page-btn:hover,
@@ -32,7 +34,9 @@
   background-color: var(--page-btn-hover-color);
   color: #fff;
   font-size: 16px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media screen and (min-width: 375px) and (max-width: 767px) {
