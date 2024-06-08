@@ -1,4 +1,4 @@
-import instance from "@/lib/axios";
+import imageInstance from "../imageInstance";
 import { AxiosResponse } from "axios";
 
 export type imageResponse = {
@@ -9,14 +9,9 @@ type ImageData = {
   image: string | File | null;
 };
 
-export async function getImageUrl(image: ImageData, token: string | null) {
+export async function getImageUrl(image: ImageData) {
   try {
-    const response: AxiosResponse<imageResponse> = await instance.post("/images/upload", image, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response: AxiosResponse<imageResponse> = await imageInstance.post("/images/upload", image);
     if (response.status === 200 || response.status === 201) {
       return response.data;
     }

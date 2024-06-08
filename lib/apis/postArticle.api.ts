@@ -1,4 +1,4 @@
-import instance from "@/lib/axios";
+import postInstance from "../postInstance";
 import { AxiosResponse } from "axios";
 
 type FormDataResponse = {
@@ -23,14 +23,9 @@ interface ArticleFormData {
 }
 
 // 게시글 등록용 POST API
-export async function postArticle(formData: ArticleFormData, token: string | null) {
+export async function postArticle(formData: ArticleFormData) {
   try {
-    const response: AxiosResponse<FormDataResponse> = await instance.post(`/articles`, formData, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response: AxiosResponse<FormDataResponse> = await postInstance.post(`/articles`, formData);
     return response.data;
   } catch (e) {
     console.error(`error : ${e}`);

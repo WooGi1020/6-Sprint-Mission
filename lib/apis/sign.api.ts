@@ -27,7 +27,7 @@ interface SignResponse {
 }
 
 // 회원가입 및 로그인 API
-export async function postSignUp(formData: SignUpFormData) {
+export async function signUp(formData: SignUpFormData) {
   try {
     const response: AxiosResponse<SignResponse> = await instance.post("/auth/signUp", formData);
     if (response.status === 201 || response.status === 200) {
@@ -39,7 +39,7 @@ export async function postSignUp(formData: SignUpFormData) {
   }
 }
 
-export async function postSignIn(formData: SignInFormData) {
+export async function signIn(formData: SignInFormData) {
   try {
     const response: AxiosResponse<SignResponse> = await instance.post("/auth/signIn", formData);
     if (response.status === 201 || response.status === 200) {
