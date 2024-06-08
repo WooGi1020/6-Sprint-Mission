@@ -2,10 +2,11 @@ import React, { use, useEffect, useState } from "react";
 import styles from "@/styles/Header.module.css";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 
 const Header = (): JSX.Element => {
-  const pathname = usePathname();
+  const router = useRouter();
+  const path = router.pathname;
   const [isLogined, setIsLogined] = useState(false);
 
   useEffect(() => {
@@ -38,10 +39,10 @@ const Header = (): JSX.Element => {
             />
           </Link>
           <ul className={styles["Header-btns"]}>
-            <Link href="/boards" className={styles[pathname.includes("/boards") ? "Header-btn-active" : "Header-btn"]}>
+            <Link href="/boards" className={styles[path.includes("/boards") ? "Header-btn-active" : "Header-btn"]}>
               <li>자유게시판</li>
             </Link>
-            <Link href="/Items" className={styles[pathname.includes("/Items") ? "Header-btn-active" : "Header-btn"]}>
+            <Link href="/Items" className={styles[path.includes("/Items") ? "Header-btn-active" : "Header-btn"]}>
               <li>중고마켓</li>
             </Link>
           </ul>
