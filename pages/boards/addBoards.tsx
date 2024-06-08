@@ -1,91 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback, ChangeEvent, FormEvent } from "react";
-import Image from "next/image";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import ArticleImg from "@/components/ArticleImg";
 import styles from "@/styles/addBoards.module.css";
 import { useRouter } from "next/router";
 import { articleRegisterValidation } from "@/utils/validations";
-import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { postArticle } from "@/lib/apis/postArticle.api";
 import { getImageUrl } from "@/lib/apis/getImageUrl.api";
-
-interface Props {
-  name: string;
-  value: File | null;
-  onChange: (name: string, value: File | null) => void;
-}
-
-function ArticleImg({ name, value, onChange }: Props) {
-  const [preview, setPreview] = useState<string | StaticImport>();
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const nextImg = e.target.files?.[0];
-    if (nextImg) {
-      onChange(name, nextImg);
-    }
-  };
-
-  const handleClearClick = useCallback(() => {
-    const inputNode = inputRef.current;
-    if (inputNode) {
-      inputNode.value = "";
-      onChange(name, null);
-    }
-  }, [name, onChange]);
-
-  useEffect(() => {
-    if (!value) return;
-    const blob = typeof value === "string" ? new Blob([value], { type: "text/plain" }) : value;
-
-    const nextPreview = URL.createObjectURL(blob);
-    setPreview(nextPreview);
-
-    return () => {
-      URL.revokeObjectURL(nextPreview);
-    };
-  }, [value]);
-
-  return (
-    <div className={styles["article-img container"]}>
-      <h3>상품 이미지</h3>
-      <div className={styles["article-img"]}>
-        <input
-          type="file"
-          name="iamge"
-          id="article-img-input"
-          onChange={handleFileChange}
-          ref={inputRef}
-          className={styles["article-img-input"]}
-        />
-        <label htmlFor="article-img-input" className={styles["article-img-label"]}>
-          <Image
-            className={styles["article-image-tag"]}
-            src="/images/Articles/plus-icon.svg"
-            alt="파일 이미지 선택"
-            width={48}
-            height={48}
-          />
-          <p className={styles["article-img-register-text"]}>이미지 등록</p>
-        </label>
-        {value && (
-          <div className={styles["prev-img"]}>
-            {preview && (
-              <Image
-                className={styles["article-prev-image-tag"]}
-                src={preview}
-                alt="파일 이미지 미리보기"
-                fill
-                style={{ objectFit: "cover" }}
-              />
-            )}
-            <button type="button" onClick={handleClearClick}>
-              X
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 export interface ArticleValue {
   title: string;
@@ -117,6 +36,7 @@ const WriteArticle = () => {
   const [imageUrl, setImageUrl] = useState<ImageUrl>({
     image: null,
   });
+
   const [isValidBtn, setIsValidBtn] = useState<boolean>(true);
   const router = useRouter();
 
@@ -149,16 +69,19 @@ const WriteArticle = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem("accessToken");
     try {
-      const res = await getImageUrl(imageUrl, token);
-      const url = res?.url;
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        image: url,
-      }));
+      if (articleValue.image) {
+        const res = await getImageUrl(imageUrl);
+        const url = res?.url;
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          image: url,
+        }));
+      } else {
+        delete formData.image;
+      }
       try {
-        await postArticle(formData, token);
+        await postArticle(formData);
         router.push("/boards");
       } catch (e) {
         console.error(`error : ${e}`);
