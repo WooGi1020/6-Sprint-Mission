@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { getArticles } from "@/lib/apis/getArticle.api";
-import { GetStaticPropsContext } from "next";
 import { ArticleResponse, getArticle } from "@/lib/apis/getArticle.api";
 import { CommentResponse, getArticleComments } from "@/lib/apis/getComment.api";
 import styles from "@/styles/DetailArticle.module.css";
@@ -9,59 +7,20 @@ import formatTime from "@/utils/formatTime";
 import ArticleComment from "@/components/ArticleComment";
 import { useRouter } from "next/router";
 
-export async function getStaticPaths() {
-  const res = await getArticles({});
-  const articles = res.list;
-  const paths = articles.map((article) => ({
-    params: {
-      id: String(article.id),
-    },
-  }));
-  return {
-    paths,
-    fallback: true,
-  };
-}
-
-export async function getStaticProps(context: GetStaticPropsContext) {
-  if (!context.params || !context.params.id) {
-    return {
-      notFound: true,
-    };
-  }
-
-  const articleId = context.params.id;
-  let article;
-
-  try {
-    const articleRes = await getArticle(articleId);
-    article = articleRes;
-  } catch {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      article,
-    },
-    revalidate: 10,
-  };
-}
-
-type Props = {
-  article: ArticleResponse;
-};
-
-const ArticleWithComment = ({ article }: Props) => {
+const ArticleWithComment = () => {
   const router = useRouter();
-  const id = router.query.id;
+  const id = router.query.id as string;
   const [comments, setComments] = useState<CommentResponse[]>([]);
+  const [article, setArticle] = useState<ArticleResponse | null>(null);
 
-  const getComments = async (id: string | string[] | undefined) => {
+  const getComments = async (id: string) => {
     const { list } = await getArticleComments(id, 10);
     setComments(list);
+  };
+
+  const getSingleArticle = async (id: string) => {
+    const data: ArticleResponse = await getArticle(id);
+    setArticle(data);
   };
 
   const setNewComment = (comment: CommentResponse) => {
@@ -69,8 +28,15 @@ const ArticleWithComment = ({ article }: Props) => {
   };
 
   useEffect(() => {
-    getComments(id);
-  }, []);
+    if (id) {
+      getComments(id);
+      getSingleArticle(id);
+    }
+  }, [id]);
+
+  if (!article) {
+    return <div style={{ height: "100vh" }}>Loading...</div>;
+  }
 
   return (
     <div className={styles["article-with-comments-wrapper"]}>
@@ -90,7 +56,7 @@ const ArticleWithComment = ({ article }: Props) => {
               alt="게시글 작성자 프로필 이미지"
               width={24}
               height={24}
-            ></Image>
+            />
             <p className={styles["article-info__bottom-writer"]}>{article.writer.nickname}</p>
             <p className={styles["article-info__bottom-createdAt"]}>{formatTime(article.createdAt)}</p>
           </div>
@@ -101,7 +67,7 @@ const ArticleWithComment = ({ article }: Props) => {
               alt="게시글 좋아요 아이콘"
               width={24}
               height={24}
-            ></Image>
+            />
             <span className={styles["article-info__bottom-likeCount"]}>{article.likeCount}</span>
           </div>
         </div>
@@ -109,7 +75,7 @@ const ArticleWithComment = ({ article }: Props) => {
           <p className={styles["article-content-text"]}>{article.content}</p>
           {article.image && (
             <div className={styles["article-content-img"]}>
-              <Image src={article.image} alt="게시글 등록 이미지" fill style={{ objectFit: "contain" }}></Image>
+              <Image src={article.image} alt="게시글 등록 이미지" fill style={{ objectFit: "contain" }} />
             </div>
           )}
         </div>
