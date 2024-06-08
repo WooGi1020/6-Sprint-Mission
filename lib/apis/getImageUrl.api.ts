@@ -5,8 +5,8 @@ export type imageResponse = {
   url: string;
 };
 
-type ImageData = {
-  image: string | File | null;
+export type ImageData = {
+  image?: string | File | null;
 };
 
 export async function getImageUrl(image: ImageData) {

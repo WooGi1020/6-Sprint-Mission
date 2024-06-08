@@ -16,7 +16,7 @@ type FormDataResponse = {
   id: number;
 };
 
-interface ArticleFormData {
+export interface ArticleFormData {
   title?: string;
   content?: string;
   image?: string | null;
