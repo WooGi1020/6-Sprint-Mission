@@ -5,17 +5,13 @@ import { useRouter } from "next/router";
 import { articleRegisterValidation } from "@/utils/validations";
 import { postArticle } from "@/lib/apis/postArticle.api";
 import { getImageUrl } from "@/lib/apis/getImageUrl.api";
+import { ArticleFormData } from "@/lib/apis/postArticle.api";
+import { ImageData } from "@/lib/apis/getImageUrl.api";
 
 export interface ArticleValue {
   title: string;
   content: string;
   image: File | null;
-}
-
-interface formData {
-  title?: string;
-  content?: string;
-  image?: string | null;
 }
 
 interface ImageUrl {
@@ -28,11 +24,6 @@ const WriteArticle = () => {
     content: "",
     title: "",
   });
-  const [formData, setFormData] = useState<formData>({
-    title: "",
-    content: "",
-    image: null,
-  });
   const [imageUrl, setImageUrl] = useState<ImageUrl>({
     image: null,
   });
@@ -43,10 +34,6 @@ const WriteArticle = () => {
   const handleChange = (name: string, value: string | File | null) => {
     setArticleValue((prevArticleValue) => ({
       ...prevArticleValue,
-      [name]: value,
-    }));
-    setFormData((prevFormData) => ({
-      ...prevFormData,
       [name]: value,
     }));
     if (name === "image") {
@@ -70,22 +57,30 @@ const WriteArticle = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
+      const data = new FormData();
+      data.append("title", articleValue.title);
+      data.append("content", articleValue.content);
       if (articleValue.image) {
         const res = await getImageUrl(imageUrl);
         const url = res?.url;
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          image: url,
-        }));
+        if (url) {
+          data.append("image", url);
+          try {
+            await postArticle(data as ArticleFormData);
+            router.push("/boards");
+          } catch (e) {
+            console.error(`error : ${e}`);
+            alert("등록에 실패했습니다.");
+          }
+        }
       } else {
-        delete formData.image;
-      }
-      try {
-        await postArticle(formData);
-        router.push("/boards");
-      } catch (e) {
-        console.error(`error : ${e}`);
-        alert("등록에 실패했습니다.");
+        try {
+          await postArticle(data as ArticleFormData);
+          router.push("/boards");
+        } catch (e) {
+          console.error(`error : ${e}`);
+          alert("등록에 실패했습니다.");
+        }
       }
     } catch (e) {
       console.error(`error : ${e}`);
