@@ -2,7 +2,7 @@ import styles from "@/styles/SignUp.module.css";
 import React, { useState, useEffect, ChangeEvent, MouseEvent, FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { postSignUp } from "@/lib/apis/api";
+import { signUp } from "@/lib/apis/sign.api";
 import { useRouter } from "next/router";
 
 const SignUp = () => {
@@ -94,9 +94,11 @@ const SignUp = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await postSignUp(signUpInfo);
+      const res = await signUp(signUpInfo);
       if (res) {
         localStorage.setItem("accessToken", res.accessToken);
+        localStorage.setItem("refreshToken", res.refreshToken);
+        localStorage.setItem("user", JSON.stringify(res.user));
         router.push("/");
       }
     } catch (e) {

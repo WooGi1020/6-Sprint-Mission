@@ -3,7 +3,7 @@ import React, { ChangeEvent, FormEvent } from "react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { postSignIn } from "@/lib/apis/api";
+import { signIn } from "@/lib/apis/sign.api";
 import { useRouter } from "next/router";
 
 const SignIn = () => {
@@ -30,7 +30,7 @@ const SignIn = () => {
     } else {
       setIsSignInBtnDisabled(true);
     }
-  }, [isValidEmail, isPwShow]);
+  }, [isValidEmail, isValidPw]);
 
   const setInputValueToUserInfo = (category: string, value: string) => {
     setUserInfo((prevUserInfo) => ({
@@ -60,9 +60,11 @@ const SignIn = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await postSignIn(userInfo);
+      const res = await signIn(userInfo);
       if (res) {
         localStorage.setItem("accessToken", res.accessToken);
+        localStorage.setItem("refreshToken", res.refreshToken);
+        localStorage.setItem("user", JSON.stringify(res.user));
         router.push("/");
       }
     } catch (e) {
