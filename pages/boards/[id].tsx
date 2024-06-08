@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { getArticles } from "@/lib/apis/getArticle.api";
 import { GetStaticPropsContext } from "next";
 import { ArticleResponse, getArticle } from "@/lib/apis/getArticle.api";
-import { CommentsResponse, getArticleComments } from "@/lib/apis/getComment.api";
+import { CommentResponse, getArticleComments } from "@/lib/apis/getComment.api";
 import styles from "@/styles/DetailArticle.module.css";
 import Image from "next/image";
 import formatTime from "@/utils/formatTime";
 import ArticleComment from "@/components/ArticleComment";
+import { useRouter } from "next/router";
 
 export async function getStaticPaths() {
   const res = await getArticles({});
@@ -31,13 +32,10 @@ export async function getStaticProps(context: GetStaticPropsContext) {
 
   const articleId = context.params.id;
   let article;
-  let comments;
 
   try {
     const articleRes = await getArticle(articleId);
-    const commentRes = await getArticleComments(articleId, 10);
     article = articleRes;
-    comments = commentRes;
   } catch {
     return {
       notFound: true,
@@ -47,18 +45,33 @@ export async function getStaticProps(context: GetStaticPropsContext) {
   return {
     props: {
       article,
-      comments,
     },
-    revalidate: 10, // Revalidate the page every 10 seconds (if needed)
+    revalidate: 10,
   };
 }
 
 type Props = {
   article: ArticleResponse;
-  comments: CommentsResponse;
 };
 
-const ArticleWithComment = ({ article, comments }: Props) => {
+const ArticleWithComment = ({ article }: Props) => {
+  const router = useRouter();
+  const id = router.query.id;
+  const [comments, setComments] = useState<CommentResponse[]>([]);
+
+  const getComments = async (id: string | string[] | undefined) => {
+    const { list } = await getArticleComments(id, 10);
+    setComments(list);
+  };
+
+  const setNewComment = (comment: CommentResponse) => {
+    setComments((prevComments) => [comment, ...prevComments]);
+  };
+
+  useEffect(() => {
+    getComments(id);
+  }, []);
+
   return (
     <div className={styles["article-with-comments-wrapper"]}>
       <article className={styles["article-container"]}>
@@ -101,7 +114,7 @@ const ArticleWithComment = ({ article, comments }: Props) => {
           )}
         </div>
       </article>
-      <ArticleComment {...comments} />
+      <ArticleComment comments={comments} setNewComment={setNewComment} />
     </div>
   );
 };
