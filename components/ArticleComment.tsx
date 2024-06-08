@@ -1,10 +1,13 @@
 import React, { ChangeEvent, useState } from "react";
 import styles from "@/styles/ArticleComment.module.css";
-import { CommentsResponse, CommentResponse } from "@/lib/apis/getComment.api";
+import { CommentResponse } from "@/lib/apis/getComment.api";
 import Image from "next/image";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import Link from "next/link";
 import { commentRegisterValidation } from "@/utils/validations";
+import { postComment } from "@/lib/apis/postComment.api";
+import { FormDataResponse } from "@/lib/apis/postComment.api";
+import { useRouter } from "next/router";
 
 function CommentList({ content, createdAt, writer }: CommentResponse) {
   return (
@@ -26,13 +29,38 @@ function CommentList({ content, createdAt, writer }: CommentResponse) {
   );
 }
 
-function ArticleComment({ list, nextCursor }: CommentsResponse) {
+interface Props {
+  comments: CommentResponse[];
+  setNewComment: (value: CommentResponse) => void;
+}
+
+function ArticleComment({ comments, setNewComment }: Props) {
   const [isButtonDisabled, setisButtonDisabled] = useState(true);
+  const [comment, setComment] = useState("");
+  const router = useRouter();
+  const id = router.query.id;
 
   const handleTextarea = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const { value } = e.target;
+    handleValidate(value);
+    setComment(value);
+  };
+
+  const handleValidate = (value: string) => {
     const validate = commentRegisterValidation(value);
     setisButtonDisabled(validate);
+  };
+
+  const handleRegisterBtn = async () => {
+    const data = new FormData();
+    data.append("content", comment);
+    try {
+      const res = await postComment(data as unknown as FormDataResponse, id);
+      setNewComment(res);
+    } catch (e) {
+      console.error(`error: ${e}`);
+      alert("댓글 등록에 실패하였습니다.");
+    }
   };
 
   return (
@@ -51,11 +79,12 @@ function ArticleComment({ list, nextCursor }: CommentsResponse) {
         id="comment-register-btn"
         className={styles[isButtonDisabled ? "comment-register-btn" : "active"]}
         disabled={isButtonDisabled}
+        onClick={handleRegisterBtn}
       >
         등록
       </button>
-      {list.length !== 0 ? (
-        list.map((comment) => {
+      {comments.length !== 0 ? (
+        comments.map((comment) => {
           return <CommentList key={comment.id} {...comment} />;
         })
       ) : (
