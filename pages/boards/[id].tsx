@@ -92,7 +92,14 @@ const ArticleWithComment = ({ article, comments }: Props) => {
             <span className={styles["article-info__bottom-likeCount"]}>{article.likeCount}</span>
           </div>
         </div>
-        <div className={styles["article-content"]}>{article.content}</div>
+        <div className={styles["article-content"]}>
+          <p className={styles["article-content-text"]}>{article.content}</p>
+          {article.image && (
+            <div className={styles["article-content-img"]}>
+              <Image src={article.image} alt="게시글 등록 이미지" fill style={{ objectFit: "contain" }}></Image>
+            </div>
+          )}
+        </div>
       </article>
       <ArticleComment {...comments} />
     </div>
