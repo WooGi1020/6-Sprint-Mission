@@ -1,7 +1,8 @@
 import React from "react";
-import { getArticles } from "@/lib/apis/api";
+import { getArticles } from "@/lib/apis/getArticle.api";
 import { GetStaticPropsContext } from "next";
-import { ArticleResponse, CommentsResponse, getArticle, getArticleComments } from "@/lib/apis/api";
+import { ArticleResponse, getArticle } from "@/lib/apis/getArticle.api";
+import { CommentsResponse, getArticleComments } from "@/lib/apis/getComment.api";
 import styles from "@/styles/DetailArticle.module.css";
 import Image from "next/image";
 import formatTime from "@/utils/formatTime";

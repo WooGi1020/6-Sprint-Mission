@@ -4,7 +4,8 @@ import styles from "@/styles/addBoards.module.css";
 import { useRouter } from "next/router";
 import { articleRegisterValidation } from "@/utils/validations";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
-import { postArticle, getImageUrl } from "@/lib/apis/api";
+import { postArticle } from "@/lib/apis/postArticle.api";
+import { getImageUrl } from "@/lib/apis/getImageUrl.api";
 
 interface Props {
   name: string;

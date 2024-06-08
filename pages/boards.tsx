@@ -5,7 +5,7 @@ import Article from "@/components/Article";
 import BestArticle from "@/components/BestArticle";
 import Head from "next/head";
 import { GetStaticPropsContext } from "next";
-import { getArticles, getBestArticles, ArticleResponse, OrderQuery } from "../lib/apis/api";
+import { getArticles, getBestArticles, ArticleResponse, OrderQuery } from "@/lib/apis/getArticle.api";
 import useMediaQuery from "@/hooks/useMatchMedia";
 import Link from "next/link";
 import PageButton from "@/components/PageButton";

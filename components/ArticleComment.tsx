@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 import styles from "@/styles/ArticleComment.module.css";
-import { CommentsResponse, CommentResponse } from "@/lib/apis/api";
+import { CommentsResponse, CommentResponse } from "@/lib/apis/getComment.api";
 import Image from "next/image";
 import formatTimeAgo from "@/utils/formatTimeAgo";
 import Link from "next/link";
