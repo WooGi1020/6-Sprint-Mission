@@ -32,7 +32,7 @@ postInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken"); // 리프레시 토큰 가져오기
+        const refreshToken = localStorage.getItem("refreshToken");
         const response = await axios.post(`${API_URL}/auth/refresh-token`, { refreshToken: refreshToken });
 
         const newToken = response.data.accessToken;
@@ -43,7 +43,6 @@ postInstance.interceptors.response.use(
         return postInstance(originalRequest);
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
-        // 필요한 경우 로그아웃 처리 등 추가 작업 수행
       }
     }
 
