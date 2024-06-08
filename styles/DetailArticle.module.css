@@ -71,10 +71,17 @@
   color: var(--gray500);
 }
 
-.article-content {
+.article-content-text {
   font-size: 16px;
   font-weight: 400;
   color: var(--gray800);
+  margin-bottom: 20px;
+}
+
+.article-content-img {
+  position: relative;
+  width: 300px;
+  height: 300px;
 }
 
 .article-info__top-edit-btn {
