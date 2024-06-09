@@ -52,14 +52,21 @@ function ArticleComment({ comments, setNewComment }: Props) {
   };
 
   const handleRegisterBtn = async () => {
-    const data = new FormData();
-    data.append("content", comment);
-    try {
-      const res = await postComment(data as unknown as FormDataResponse, id);
-      setNewComment(res);
-    } catch (e) {
-      console.error(`error: ${e}`);
-      alert("댓글 등록에 실패하였습니다.");
+    const isLogined = localStorage.getItem("accessToken");
+
+    if (!isLogined) {
+      alert("로그인이 필요합니다.");
+      router.push("/SignIn");
+    } else {
+      const data = new FormData();
+      data.append("content", comment);
+      try {
+        const res = await postComment(data as unknown as FormDataResponse, id);
+        setNewComment(res);
+      } catch (e) {
+        console.error(`error: ${e}`);
+        alert("댓글 등록에 실패하였습니다.");
+      }
     }
   };
 

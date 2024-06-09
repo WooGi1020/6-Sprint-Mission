@@ -1,6 +1,6 @@
 import React, { useState, MouseEvent } from "react";
 import { ChangeEvent, KeyboardEvent } from "react";
-import Link from "next/link";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import styles from "@/styles/BoardNavBar.module.css";
 
@@ -12,6 +12,7 @@ interface Props {
 const BoardNavBar = ({ handleOrderBy, handleKeyword }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropdownMenu, setDropdownMenu] = useState<string | null>("최신순");
+  const router = useRouter();
 
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -44,13 +45,24 @@ const BoardNavBar = ({ handleOrderBy, handleKeyword }: Props) => {
     }
   };
 
+  const handlePathByCondition = () => {
+    const isLogined = localStorage.getItem("accessToken");
+
+    if (isLogined) {
+      router.push("/boards/addBoards");
+    } else {
+      alert("로그인이 필요합니다.");
+      router.push("/SignIn");
+    }
+  };
+
   return (
     <div className={styles["board-nav-bar"]}>
       <div className={styles["board-nav-bar__top"]}>
         <h2 className={styles["board-nav-bar__title"]}>게시글</h2>
-        <Link className={styles["board-nav-bar__write-btn"]} href="/boards/addBoards">
+        <button className={styles["board-nav-bar__write-btn"]} onClick={handlePathByCondition}>
           글쓰기
-        </Link>
+        </button>
       </div>
 
       <div className={styles["board-nav-bar__bottom"]}>
