@@ -8,10 +8,25 @@ const Header = (): JSX.Element => {
   const router = useRouter();
   const path = router.pathname;
   const [isLogined, setIsLogined] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const handleDropdownOpen = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+    setIsLogined(false);
+    setIsDropdownOpen(false);
+  };
 
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
       setIsLogined(true);
+    } else {
+      setIsLogined(false);
     }
   }, []);
 
@@ -48,11 +63,25 @@ const Header = (): JSX.Element => {
           </ul>
         </div>
         {isLogined ? (
-          <Image src="/images/Header/userProfile.png" alt="헤더 프로필 이미지" width={40} height={40} />
+          <Image
+            src="/images/Header/userProfile.png"
+            alt="헤더 프로필 이미지"
+            width={40}
+            height={40}
+            onClick={handleDropdownOpen}
+            style={{ cursor: "pointer" }}
+          />
         ) : (
           <Link href="/SignIn" className={styles["Header-login-btn"]}>
             로그인
           </Link>
+        )}
+        {isDropdownOpen && (
+          <div className={styles["header-dropdown"]}>
+            <button className={styles["header-dropdown__logout"]} onClick={handleLogout}>
+              로그아웃
+            </button>
+          </div>
         )}
       </header>
     </>
