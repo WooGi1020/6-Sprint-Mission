@@ -24,9 +24,6 @@ const WriteArticle = () => {
     content: "",
     title: "",
   });
-  const [imageUrl, setImageUrl] = useState<ImageUrl>({
-    image: null,
-  });
 
   const [isValidBtn, setIsValidBtn] = useState<boolean>(true);
   const router = useRouter();
@@ -36,12 +33,6 @@ const WriteArticle = () => {
       ...prevArticleValue,
       [name]: value,
     }));
-    if (name === "image") {
-      setImageUrl((prevImageUrl) => ({
-        ...prevImageUrl,
-        image: value,
-      }));
-    }
   };
 
   const handleInputValuesChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -56,12 +47,14 @@ const WriteArticle = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const data = new FormData();
+    const imageData = new FormData();
     try {
-      const data = new FormData();
       data.append("title", articleValue.title);
       data.append("content", articleValue.content);
       if (articleValue.image) {
-        const res = await getImageUrl(imageUrl);
+        imageData.append("image", articleValue.image);
+        const res = await getImageUrl(imageData as ImageData);
         const url = res?.url;
         if (url) {
           data.append("image", url);
