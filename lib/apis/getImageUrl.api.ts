@@ -1,4 +1,4 @@
-import imageInstance from "../imageInstance";
+import postInstance from "../instanceWithToken";
 import { AxiosResponse } from "axios";
 
 export type imageResponse = {
@@ -11,7 +11,7 @@ export type ImageData = {
 
 export async function getImageUrl(image: ImageData) {
   try {
-    const response: AxiosResponse<imageResponse> = await imageInstance.post("/images/upload", image);
+    const response: AxiosResponse<imageResponse> = await postInstance.post("/images/upload", image);
     if (response.status === 200 || response.status === 201) {
       return response.data;
     }

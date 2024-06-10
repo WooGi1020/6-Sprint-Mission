@@ -1,4 +1,4 @@
-import postInstance from "../postInstance";
+import postInstance from "../instanceWithToken";
 import { AxiosResponse } from "axios";
 
 export interface FormDataResponse {
