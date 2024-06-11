@@ -96,7 +96,19 @@ function ArticleComment({ comments, setNewComment, cursor, getComments, loading 
           height={195}
         />
       )}
-      <div ref={loadingRef}>{loading && <div>Loading more articles...</div>}</div>
+      <div ref={loadingRef}>
+        {loading && (
+          <div className={styles["comment-loading-container"]}>
+            <Image
+              className={styles["comment-loading-spinner"]}
+              src="/images/Articles/spinner.svg"
+              alt="댓글 로딩 아이콘"
+              width={48}
+              height={48}
+            ></Image>
+          </div>
+        )}
+      </div>
       <Link href="/boards" className={styles["go-back-btn"]}>
         목록으로 돌아가기
         <Image src="/images/Articles/go-back-icon.svg" alt="목록으로 돌아가기 버튼 아이콘" width={24} height={24} />
