@@ -32,6 +32,7 @@ const ArticleWithComment = () => {
         setComments((prevComments) => [...prevComments, ...list]);
       }
       setCursor(nextCursor);
+      nextCursor !== null && setLoading(true);
     }
   };
 
