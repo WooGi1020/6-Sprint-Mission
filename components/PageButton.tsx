@@ -7,10 +7,12 @@ interface Props {
   totalCount: number;
 }
 
+const PAGE_SIZE = 5;
+
 const PageButton = ({ totalCount, handlePage, page }: Props) => {
   const [isPageDownBtnDisabled, setIsPageDownBtnDisabled] = useState(true);
   const [isPageUpBtnDisabled, setIsPageUpBtnDisabled] = useState(false);
-  const totalPages = totalCount / 5;
+  const totalPages = totalCount / PAGE_SIZE;
 
   const pageArr = Array.from({ length: totalPages }, (_, i) => i + 1);
 
@@ -29,6 +31,17 @@ const PageButton = ({ totalCount, handlePage, page }: Props) => {
     }
   };
 
+  const pageDownMax = () => {
+    if (page > 1) {
+      handlePage(1);
+    }
+  };
+  const pageUpMax = () => {
+    if (page < pageArr.length) {
+      handlePage(pageArr.length);
+    }
+  };
+
   useEffect(() => {
     if (page > 1) {
       setIsPageDownBtnDisabled(false);
@@ -40,27 +53,36 @@ const PageButton = ({ totalCount, handlePage, page }: Props) => {
     } else {
       setIsPageUpBtnDisabled(false);
     }
-  }, [pageArr]);
+  }, [pageArr, page]);
 
   return (
     <div className={styles.button}>
+      <button disabled={isPageDownBtnDisabled} className={styles["page-side-btn"]} onClick={pageDownMax}>
+        &lt;&lt;
+      </button>
       <button disabled={isPageDownBtnDisabled} className={styles["page-side-btn"]} onClick={pageDown}>
         &lt;
       </button>
       {pageArr.map((num) => {
+        const isVisible = page > 6 ? num >= page - 5 && num <= page + 4 : num >= 1 && num <= 10;
         return (
-          <button
-            className={styles[page === num ? "page-btn-active" : "page-btn"]}
-            key={num}
-            onClick={() => getButtonValue(num)}
-            value={num}
-          >
-            {num}
-          </button>
+          isVisible && (
+            <button
+              className={styles[page === num ? "page-btn-active" : "page-btn"]}
+              key={num}
+              onClick={() => getButtonValue(num)}
+              value={num}
+            >
+              {num}
+            </button>
+          )
         );
       })}
       <button disabled={isPageUpBtnDisabled} className={styles["page-side-btn"]} onClick={pageUp}>
         &gt;
+      </button>
+      <button disabled={isPageUpBtnDisabled} className={styles["page-side-btn"]} onClick={pageUpMax}>
+        &gt;&gt;
       </button>
     </div>
   );
