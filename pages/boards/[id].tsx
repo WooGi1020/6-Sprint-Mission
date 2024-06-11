@@ -19,12 +19,18 @@ const ArticleWithComment = () => {
 
   const [article, setArticle] = useState<ArticleResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const getComments = async (cursor: number | null) => {
     const { list, nextCursor } = await getArticleComments(id, LIMIT, cursor);
     if (list) {
       setLoading(false);
-      setComments((prevComments) => [...prevComments, ...list]);
+      if (isFirstLoad) {
+        setComments(list);
+        setIsFirstLoad(false);
+      } else {
+        setComments((prevComments) => [...prevComments, ...list]);
+      }
       setCursor(nextCursor);
     }
   };
