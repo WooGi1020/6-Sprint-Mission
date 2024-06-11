@@ -1,7 +1,6 @@
 import instance from "@/lib/instance";
 import { AxiosResponse } from "axios";
 import { WriterResponse } from "./getArticle.api";
-import next from "next";
 
 export type CommentsResponse = {
   list: CommentResponse[];
