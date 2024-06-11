@@ -11,7 +11,7 @@ export default function useIntersectionObserver(ref: RefObject<HTMLDivElement>) 
           else setIsIntersecting(false);
         });
       },
-      { threshold: 1.0 }
+      { threshold: 0.3 }
     );
 
     if (ref.current) observer.observe(ref.current);
