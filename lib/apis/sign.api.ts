@@ -45,8 +45,9 @@ export async function signIn(formData: SignInFormData) {
     if (response.status === 201 || response.status === 200) {
       return response.data;
     }
-  } catch (e) {
-    console.error(`error: ${e}`);
-    throw new Error();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
   }
 }
