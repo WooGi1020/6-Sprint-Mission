@@ -1,5 +1,5 @@
 import styles from "@/styles/SignIn.module.css";
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { signIn } from "@/lib/apis/sign.api";
@@ -22,7 +22,18 @@ const SignIn = () => {
   });
 
   const [isPwShow, setIsPwShow] = useState(false);
+  const ref = useRef(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) {
+      if (!ref.current) {
+        alert("이미 로그인한 상태입니다.");
+        ref.current = true;
+        router.push("/");
+      }
+    }
+  }, []);
 
   const handlePwShow = () => {
     setIsPwShow(!isPwShow);
@@ -38,8 +49,9 @@ const SignIn = () => {
         router.push("/");
       }
     } catch (e) {
-      console.error(`Error : ${e}`);
-      alert("로그인에 실패했습니다.");
+      if (e.response.status === 400) {
+        alert(e.response.data.message);
+      }
     }
   };
 

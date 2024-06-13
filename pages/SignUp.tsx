@@ -1,5 +1,5 @@
 import styles from "@/styles/SignUp.module.css";
-import React, { useState, MouseEvent } from "react";
+import React, { useState, MouseEvent, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { signUp } from "@/lib/apis/sign.api";
@@ -35,6 +35,7 @@ const SignUp = () => {
   });
 
   const router = useRouter();
+  const ref = useRef(false);
 
   const handlePwShow = (e: MouseEvent) => {
     const { id } = e.target as HTMLImageElement;
@@ -46,6 +47,16 @@ const SignUp = () => {
       }));
     }
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) {
+      if (!ref.current) {
+        alert("이미 로그인한 상태입니다.");
+        ref.current = true;
+        router.push("/");
+      }
+    }
+  }, []);
 
   const onSubmit: SubmitHandler<IForm> = async (data) => {
     try {
