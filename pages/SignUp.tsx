@@ -1,106 +1,57 @@
 import styles from "@/styles/SignUp.module.css";
-import React, { useState, useEffect, ChangeEvent, MouseEvent, FormEvent } from "react";
+import React, { useState, MouseEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { signUp } from "@/lib/apis/sign.api";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+interface IForm {
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+  nickname: string;
+}
+
+interface IsShow {
+  password: boolean;
+  passwordConfirmation: boolean;
+}
 
 const SignUp = () => {
-  const [isSignUpBtnDisabled, setIsSignUpBtnDisabled] = useState(true);
-
-  const [isPwShow, setIsPwShow] = useState({
+  const [isPwShow, setIsPwShow] = useState<IsShow>({
     password: false,
     passwordConfirmation: false,
   });
 
-  const [isValidEmail, setIsValidEmail] = useState(true);
-  const [isValidPw, setIsValidPw] = useState(true);
-  const [isPwMatch, setIsPwMatch] = useState(true);
-  const [isValidNickname, setIsValidNickname] = useState(true);
-
-  const [signUpInfo, setSignUpInfo] = useState({
-    email: "",
-    password: "",
-    passwordConfirmation: "",
-    nickname: "",
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { isValid, errors },
+  } = useForm<IForm>({
+    mode: "onChange",
   });
+
   const router = useRouter();
-
-  const validOption = {
-    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    pw: /.{8,}/,
-    nick: /^.+$/,
-  };
-
-  useEffect(() => {
-    if (
-      isValidEmail &&
-      isValidPw &&
-      isPwMatch &&
-      isValidNickname &&
-      signUpInfo.email &&
-      signUpInfo.password &&
-      signUpInfo.nickname &&
-      signUpInfo.passwordConfirmation
-    ) {
-      setIsSignUpBtnDisabled(false);
-    } else {
-      setIsSignUpBtnDisabled(true);
-    }
-  }, [isValidEmail, isPwShow, isPwMatch, isValidNickname]);
-
-  const setInputValueToSignUpInfo = (category: string, value: string) => {
-    setSignUpInfo((prevSignUpInfo) => ({
-      ...prevSignUpInfo,
-      [category]: value,
-    }));
-  };
-
-  const checkInputValidity = (e: ChangeEvent) => {
-    const { name, value } = e.target as HTMLInputElement;
-
-    if (name === "email") {
-      setInputValueToSignUpInfo("email", value);
-      const isValid = validOption.email.test(value);
-      setIsValidEmail(isValid ? true : false);
-    } else if (name === "nickname") {
-      setInputValueToSignUpInfo("nickname", value);
-      const isValid = validOption.nick.test(value);
-      setIsValidNickname(isValid ? true : false);
-    } else if (name === "pw") {
-      setInputValueToSignUpInfo("password", value);
-      const isValid = validOption.pw.test(value);
-      setIsValidPw(isValid ? true : false);
-    } else {
-      setInputValueToSignUpInfo("passwordConfirmation", value);
-      const isValid = signUpInfo.password === value;
-      setIsPwMatch(isValid ? true : false);
-    }
-  };
 
   const handlePwShow = (e: MouseEvent) => {
     const { id } = e.target as HTMLImageElement;
-    id === "confirm"
-      ? setIsPwShow((prevIsPwShow) => ({
-          ...prevIsPwShow,
-          passwordConfirmation: !prevIsPwShow.passwordConfirmation,
-        }))
-      : setIsPwShow((prevIsPwShow) => ({
-          ...prevIsPwShow,
-          password: !prevIsPwShow.password,
-        }));
+    console.log(id);
+    if (id === "password" || id === "passwordConfirmation") {
+      setIsPwShow((prevIsPwShow) => ({
+        ...prevIsPwShow,
+        [id]: !prevIsPwShow[id],
+      }));
+    }
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<IForm> = async (data) => {
     try {
-      const res = await signUp(signUpInfo);
+      const res = await signUp(data);
       if (res) {
-        localStorage.setItem("accessToken", res.accessToken);
-        localStorage.setItem("refreshToken", res.refreshToken);
-        localStorage.setItem("user", JSON.stringify(res.user));
-        router.push("/");
+        router.push("/SignIn");
       }
     } catch (e) {
       console.error(`Error : ${e}`);
@@ -125,23 +76,24 @@ const SignUp = () => {
           </Link>
         </div>
 
-        <form action="#" method="post" className={styles["sign-up-from"]} onSubmit={handleSubmit}>
+        <form action="#" method="post" className={styles["sign-up-from"]} onSubmit={handleSubmit(onSubmit)}>
           <div className={styles["con"]}>
             <label htmlFor="email">이메일</label>
             <input
               type="email"
               id="email"
-              name="email"
               placeholder="이메일을 입력해주세요"
-              onChange={checkInputValidity}
-              className={styles[isValidEmail ? "sign-email-input" : "sign-email-input-wrong"]}
+              {...register("email", {
+                required: "이메일을 입력해주세요",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "잘못된 이메일 형식입니다",
+                },
+              })}
+              className={styles[errors.email ? "sign-email-input-wrong" : "sign-email-input"]}
               autoFocus
             />
-            {isValidEmail || (
-              <span className={styles["wrong-email"]}>
-                {signUpInfo.email === "" ? "이메일을 입력해주세요" : "잘못된 이메일 형식입니다"}
-              </span>
-            )}
+            {errors.email ? <span className={styles["wrong-email"]}>{errors.email.message}</span> : null}
           </div>
 
           <div className={styles["con"]}>
@@ -149,29 +101,34 @@ const SignUp = () => {
             <input
               type="text"
               id="nickname"
-              name="nickname"
+              {...register("nickname", {
+                required: "닉네임을 입력해주세요",
+              })}
               placeholder="닉네임을 입력해주세요"
-              className={styles[isValidNickname ? "sign-nick-input" : "sign-nick-input-wrong"]}
-              onChange={checkInputValidity}
+              className={styles[errors.nickname ? "sign-nick-input-wrong" : "sign-nick-input"]}
             />
-            {isValidNickname || (
-              <span className={styles["wrong-nick"]}>{signUpInfo.nickname === "" && "닉네임을 입력해주세요"}</span>
-            )}
+            {errors.nickname ? <span className={styles["wrong-nick"]}>{errors.nickname.message}</span> : null}
           </div>
 
           <div className={styles.con}>
-            <label htmlFor="pw">비밀번호</label>
+            <label htmlFor="password">비밀번호</label>
             <input
               type={isPwShow.password ? "text" : "password"}
-              id="pw"
-              name="pw"
+              id="password"
+              {...register("password", {
+                required: "비밀번호를 입력해주세요",
+                minLength: {
+                  value: 8,
+                  message: "비밀번호를 8자 이상 입력해주세요",
+                },
+              })}
               placeholder="비밀번호를 입력해주세요"
-              className={styles[isValidPw ? "sign-pw-input" : "sign-pw-input-wrong"]}
-              onChange={checkInputValidity}
+              className={styles[errors.password ? "sign-pw-input-wrong" : "sign-pw-input"]}
             />
             {isPwShow.password ? (
               <Image
                 src="/images/Sign/show-icon.svg"
+                id="password"
                 alt="비밀번호 보이기 버튼"
                 width={24}
                 height={24}
@@ -182,35 +139,34 @@ const SignUp = () => {
               <Image
                 src="/images/Sign/none-show-icon.svg"
                 alt="비밀번호 숨기기 버튼"
+                id="password"
                 width={24}
                 height={24}
                 className={styles["none-show-icon"]}
                 onClick={handlePwShow}
               ></Image>
             )}
-            {isValidPw || (
-              <span className={styles["wrong-pw"]}>
-                {signUpInfo.password === "" ? "비밀번호를 입력해주세요" : "비밀번호를 8자 이상 입력해주세요"}
-              </span>
-            )}
+            {errors.password ? <span className={styles["wrong-pw"]}>{errors.password.message}</span> : null}
           </div>
 
           <div className={styles.con}>
-            <label htmlFor="re-pw">비밀번호 확인</label>
+            <label htmlFor="passwordConfirmation">비밀번호 확인</label>
             <input
               type={isPwShow.passwordConfirmation ? "text" : "password"}
-              id="re-pw"
-              name="re-pw"
+              id="passwordConfirmation"
               placeholder="비밀번호를 다시 한번 입력해주세요"
-              className={styles[isPwMatch ? "sign-repw-input" : "sign-repw-input-wrong"]}
-              onChange={checkInputValidity}
+              {...register("passwordConfirmation", {
+                required: "비밀번호를 다시 입력해주세요",
+                validate: (value) => value === watch("password") || "비밀번호가 일치하지 않습니다.",
+              })}
+              className={styles[errors.passwordConfirmation ? "sign-repw-input-wrong" : "sign-repw-input"]}
             />
             {isPwShow.passwordConfirmation ? (
               <Image
                 src="/images/Sign/show-icon.svg"
                 alt="비밀번호 보이기 버튼"
                 width={24}
-                id="confirm"
+                id="passwordConfirmation"
                 height={24}
                 className={styles["show-icon"]}
                 onClick={handlePwShow}
@@ -221,15 +177,17 @@ const SignUp = () => {
                 alt="비밀번호 숨기기 버튼"
                 width={24}
                 height={24}
-                id="confirm"
+                id="passwordConfirmation"
                 className={styles["none-show-icon"]}
                 onClick={handlePwShow}
               ></Image>
             )}
-            {isPwMatch || <span className={styles["wrong-repw"]}>비밀번호가 일치하지 않습니다</span>}
+            {errors.passwordConfirmation ? (
+              <span className={styles["wrong-repw"]}>{errors.passwordConfirmation.message}</span>
+            ) : null}
           </div>
 
-          <button type="submit" disabled={isSignUpBtnDisabled} className={styles["signup-btn"]}>
+          <button type="submit" disabled={!isValid} className={styles["signup-btn"]}>
             회원가입
           </button>
 

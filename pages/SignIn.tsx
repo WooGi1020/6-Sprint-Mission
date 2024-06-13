@@ -1,67 +1,36 @@
 import styles from "@/styles/SignIn.module.css";
-import React, { ChangeEvent, FormEvent } from "react";
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { signIn } from "@/lib/apis/sign.api";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+interface IForm {
+  email: string;
+  password: string;
+}
 
 const SignIn = () => {
-  const [isSignInBtnDisabled, setIsSignInBtnDisabled] = useState(true);
-  const [isPwShow, setIsPwShow] = useState(false);
-  const router = useRouter();
-
-  const [isValidEmail, setIsValidEmail] = useState(true);
-  const [isValidPw, setIsValidPw] = useState(true);
-
-  const [userInfo, setUserInfo] = useState({
-    email: "",
-    password: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { isValid, errors },
+  } = useForm<IForm>({
+    mode: "onChange",
   });
 
-  const validOption = {
-    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    pw: /.{8,}/,
-  };
-
-  useEffect(() => {
-    if (isValidEmail && isValidPw && userInfo.email && userInfo.password) {
-      setIsSignInBtnDisabled(false);
-    } else {
-      setIsSignInBtnDisabled(true);
-    }
-  }, [isValidEmail, isValidPw]);
-
-  const setInputValueToUserInfo = (category: string, value: string) => {
-    setUserInfo((prevUserInfo) => ({
-      ...prevUserInfo,
-      [category]: value,
-    }));
-  };
-
-  const checkInputValidity = (e: ChangeEvent) => {
-    const { name, value } = e.target as HTMLInputElement;
-
-    if (name === "email") {
-      setInputValueToUserInfo("email", value);
-      const isValid = validOption.email.test(value);
-      setIsValidEmail(isValid ? true : false);
-    } else {
-      setInputValueToUserInfo("password", value);
-      const isValid = validOption.pw.test(value);
-      setIsValidPw(isValid ? true : false);
-    }
-  };
+  const [isPwShow, setIsPwShow] = useState(false);
+  const router = useRouter();
 
   const handlePwShow = () => {
     setIsPwShow(!isPwShow);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<IForm> = async (data) => {
     try {
-      const res = await signIn(userInfo);
+      const res = await signIn(data);
       if (res) {
         localStorage.setItem("accessToken", res.accessToken);
         localStorage.setItem("refreshToken", res.refreshToken);
@@ -91,7 +60,7 @@ const SignIn = () => {
           </Link>
         </div>
 
-        <form action="#" method="post" className={styles["sign-in-from"]} onSubmit={handleSubmit}>
+        <form action="#" method="post" className={styles["sign-in-from"]} onSubmit={handleSubmit(onSubmit)}>
           <div className={styles["con"]}>
             <label htmlFor="email" className={styles["sign-email-label"]}>
               이메일
@@ -99,17 +68,18 @@ const SignIn = () => {
             <input
               type="email"
               id="email"
-              name="email"
               placeholder="이메일을 입력해주세요"
+              {...register("email", {
+                required: "이메일을 입력해주세요",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "잘못된 이메일 형식입니다.",
+                },
+              })}
               autoFocus
-              onChange={checkInputValidity}
-              className={styles[isValidEmail ? "sign-email-input" : "sign-email-input-wrong"]}
+              className={styles[errors.email ? "sign-email-input-wrong" : "sign-email-input"]}
             />
-            {isValidEmail || (
-              <span className={styles["wrong-email"]}>
-                {userInfo.email === "" ? "이메일을 입력해주세요" : "잘못된 이메일 형식입니다"}
-              </span>
-            )}
+            {errors.email ? <span className={styles["wrong-email"]}>{errors.email.message}</span> : null}
           </div>
 
           <div className={styles["con"]}>
@@ -119,10 +89,15 @@ const SignIn = () => {
             <input
               type={isPwShow ? "text" : "password"}
               id="pw"
-              name="password"
               placeholder="비밀번호를 입력해주세요"
-              onChange={checkInputValidity}
-              className={styles[isValidPw ? "sign-pw-input" : "sign-pw-input-wrong"]}
+              {...register("password", {
+                required: "비밀번호를 입력해주세요",
+                minLength: {
+                  value: 8,
+                  message: "비밀번호를 8자 이상 입력해주세요",
+                },
+              })}
+              className={styles[errors.password ? "sign-pw-input-wrong" : "sign-pw-input"]}
             />
             {isPwShow ? (
               <Image
@@ -143,14 +118,10 @@ const SignIn = () => {
                 onClick={handlePwShow}
               ></Image>
             )}
-            {isValidPw || (
-              <span className={styles["wrong-pw"]}>
-                {userInfo.password === "" ? "비밀번호를 입력해주세요" : "비밀번호를 8자 이상 입력해주세요"}
-              </span>
-            )}
+            {errors.password ? <span className={styles["wrong-pw"]}>{errors.password.message}</span> : null}
           </div>
 
-          <button disabled={isSignInBtnDisabled} className={styles["login-btn"]}>
+          <button disabled={!isValid} className={styles["login-btn"]}>
             로그인
           </button>
 
