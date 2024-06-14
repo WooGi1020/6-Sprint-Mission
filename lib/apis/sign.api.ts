@@ -1,5 +1,5 @@
 import instance from "@/lib/instance";
-import { AxiosResponse } from "axios";
+import { AxiosResponse, AxiosError } from "axios";
 
 interface SignUpFormData {
   email: string;
@@ -33,9 +33,11 @@ export async function signUp(formData: SignUpFormData) {
     if (response.status === 201 || response.status === 200) {
       return response.data;
     }
-  } catch (e) {
-    console.error(`error: ${e}`);
-    throw new Error();
+  } catch (e: unknown) {
+    const error = e as AxiosError;
+    if (error.response?.status === 400) {
+      alert("회원가입 실패!");
+    }
   }
 }
 
@@ -45,9 +47,12 @@ export async function signIn(formData: SignInFormData) {
     if (response.status === 201 || response.status === 200) {
       return response.data;
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
+  } catch (e: unknown) {
+    if (e) {
+      const error = e as AxiosError;
+      if (error.response?.status === 400) {
+        alert("로그인 실패!");
+      }
     }
   }
 }
