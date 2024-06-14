@@ -48,10 +48,8 @@ const SignIn = () => {
         localStorage.setItem("user", JSON.stringify(res.user));
         router.push("/");
       }
-    } catch (e) {
-      if (e.response.status === 400) {
-        alert(e.response.data.message);
-      }
+    } catch (error) {
+      console.error(`error : ${error}`);
     }
   };
 
