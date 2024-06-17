@@ -28,9 +28,8 @@ const ArticleWithComment = () => {
       if (isFirstLoad) {
         setComments(list);
         setIsFirstLoad(false);
-      } else {
-        setComments((prevComments) => [...prevComments, ...list]);
       }
+      setComments((prevComments) => [...prevComments, ...list]);
       setCursor(nextCursor);
       nextCursor !== null && setLoading(true);
     }
