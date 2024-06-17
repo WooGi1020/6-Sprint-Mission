@@ -35,7 +35,7 @@ const SignUp = () => {
   });
 
   const router = useRouter();
-  const ref = useRef(false);
+  const isMountedRef = useRef(false);
 
   const handlePwShow = (e: MouseEvent) => {
     const { id } = e.target as HTMLImageElement;
@@ -50,23 +50,22 @@ const SignUp = () => {
 
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
-      if (!ref.current) {
+      if (!isMountedRef.current) {
         alert("이미 로그인한 상태입니다.");
-        ref.current = true;
+        isMountedRef.current = true;
         router.push("/");
       }
     }
   }, []);
 
-  const onSubmit: SubmitHandler<IForm> = async (data) => {
+  const handleSubmitForm: SubmitHandler<IForm> = async (data) => {
     try {
       const res = await signUp(data);
       if (res) {
         router.push("/SignIn");
       }
     } catch (e) {
-        alert(e);
-        }
+      alert(e);
     }
   };
 
@@ -87,7 +86,7 @@ const SignUp = () => {
           </Link>
         </div>
 
-        <form action="#" method="post" className={styles["sign-up-from"]} onSubmit={handleSubmit(onSubmit)}>
+        <form action="#" method="post" className={styles["sign-up-from"]} onSubmit={handleSubmit(handleSubmitForm)}>
           <div className={styles["con"]}>
             <label htmlFor="email">이메일</label>
             <input

@@ -22,14 +22,14 @@ const SignIn = () => {
   });
 
   const [isPwShow, setIsPwShow] = useState(false);
-  const ref = useRef(false);
+  const isMountedRef = useRef(false);
   const router = useRouter();
 
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
-      if (!ref.current) {
+      if (!isMountedRef.current) {
         alert("이미 로그인한 상태입니다.");
-        ref.current = true;
+        isMountedRef.current = true;
         router.push("/");
       }
     }
@@ -39,7 +39,7 @@ const SignIn = () => {
     setIsPwShow(!isPwShow);
   };
 
-  const onSubmit: SubmitHandler<IForm> = async (data) => {
+  const handleSubmitForm: SubmitHandler<IForm> = async (data) => {
     try {
       const res = await signIn(data);
       if (res) {
@@ -72,7 +72,7 @@ const SignIn = () => {
           </Link>
         </div>
 
-        <form action="#" method="post" className={styles["sign-in-from"]} onSubmit={handleSubmit(onSubmit)}>
+        <form action="#" method="post" className={styles["sign-in-from"]} onSubmit={handleSubmit(handleSubmitForm)}>
           <div className={styles["con"]}>
             <label htmlFor="email" className={styles["sign-email-label"]}>
               이메일
