@@ -15,14 +15,14 @@ interface IForm {
 }
 
 interface IsShow {
-  password: boolean;
-  passwordConfirmation: boolean;
+  isPwShow: boolean;
+  isPwConfirmShow: boolean;
 }
 
 const SignUp = () => {
-  const [isPwShow, setIsPwShow] = useState<IsShow>({
-    password: false,
-    passwordConfirmation: false,
+  const [showPwIcon, setshowPwIcon] = useState<IsShow>({
+    isPwShow: false,
+    isPwConfirmShow: false,
   });
 
   const {
@@ -40,10 +40,10 @@ const SignUp = () => {
   const handlePwShow = (e: MouseEvent) => {
     const { id } = e.target as HTMLImageElement;
     console.log(id);
-    if (id === "password" || id === "passwordConfirmation") {
-      setIsPwShow((prevIsPwShow) => ({
-        ...prevIsPwShow,
-        [id]: !prevIsPwShow[id],
+    if (id === "isPwShow" || id === "isPwConfirmShow") {
+      setshowPwIcon((prevShowPwIcon) => ({
+        ...prevShowPwIcon,
+        [id]: !prevShowPwIcon[id],
       }));
     }
   };
@@ -123,7 +123,7 @@ const SignUp = () => {
           <div className={styles.con}>
             <label htmlFor="password">비밀번호</label>
             <input
-              type={isPwShow.password ? "text" : "password"}
+              type={showPwIcon.isPwShow ? "text" : "password"}
               id="password"
               {...register("password", {
                 required: "비밀번호를 입력해주세요",
@@ -135,7 +135,7 @@ const SignUp = () => {
               placeholder="비밀번호를 입력해주세요"
               className={styles[errors.password ? "sign-pw-input-wrong" : "sign-pw-input"]}
             />
-            {isPwShow.password ? (
+            {showPwIcon.isPwShow ? (
               <Image
                 src="/images/Sign/show-icon.svg"
                 id="password"
@@ -162,7 +162,7 @@ const SignUp = () => {
           <div className={styles.con}>
             <label htmlFor="passwordConfirmation">비밀번호 확인</label>
             <input
-              type={isPwShow.passwordConfirmation ? "text" : "password"}
+              type={showPwIcon.isPwConfirmShow ? "text" : "password"}
               id="passwordConfirmation"
               placeholder="비밀번호를 다시 한번 입력해주세요"
               {...register("passwordConfirmation", {
@@ -171,7 +171,7 @@ const SignUp = () => {
               })}
               className={styles[errors.passwordConfirmation ? "sign-repw-input-wrong" : "sign-repw-input"]}
             />
-            {isPwShow.passwordConfirmation ? (
+            {showPwIcon.isPwConfirmShow ? (
               <Image
                 src="/images/Sign/show-icon.svg"
                 alt="비밀번호 보이기 버튼"
