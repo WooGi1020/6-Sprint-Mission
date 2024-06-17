@@ -64,7 +64,8 @@ const PageButton = ({ totalCount, handlePage, page }: Props) => {
         &lt;
       </button>
       {pageArr.map((num) => {
-        const isVisible = page > 6 ? num >= page - 5 && num <= page + 4 : num >= 1 && num <= 10;
+        const isVisible =
+          page > PAGE_SIZE ? num >= page - (PAGE_SIZE - 1) && num <= page + (PAGE_SIZE - 1) : num >= 1 && num <= 9;
         return (
           isVisible && (
             <button
