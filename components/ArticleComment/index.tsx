@@ -2,13 +2,13 @@ import React, { ChangeEvent, useState, useRef, useEffect } from "react";
 import styles from "@/styles/ArticleComment.module.css";
 import { CommentResponse } from "@/lib/apis/getComment.api";
 import Image from "next/image";
-import formatTimeAgo from "@/utils/formatTimeAgo";
 import Link from "next/link";
 import { commentRegisterValidation } from "@/utils/validations";
 import { postComment } from "@/lib/apis/postComment.api";
 import { FormDataResponse } from "@/lib/apis/postComment.api";
 import { useRouter } from "next/router";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
+import CommentList from "./CommentList";
 
 interface Props {
   comments: CommentResponse[];
@@ -25,7 +25,7 @@ function ArticleComment({ comments, setNewComment, cursor, getComments, loading 
   const id = router.query.id;
 
   const loadingRef = useRef(null);
-  const isInteresting = useIntersectionObserver(loadingRef);
+  const interesting = useIntersectionObserver(loadingRef);
 
   const handleTextarea = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const { value } = e.target;
@@ -58,10 +58,10 @@ function ArticleComment({ comments, setNewComment, cursor, getComments, loading 
   };
 
   useEffect(() => {
-    if (isInteresting && cursor !== null) {
+    if (interesting && cursor !== null) {
       getComments(cursor);
     }
-  }, [isInteresting]);
+  }, [interesting]);
 
   return (
     <div className={styles["comment-wrapper"]}>
@@ -113,26 +113,6 @@ function ArticleComment({ comments, setNewComment, cursor, getComments, loading 
         목록으로 돌아가기
         <Image src="/images/Articles/go-back-icon.svg" alt="목록으로 돌아가기 버튼 아이콘" width={24} height={24} />
       </Link>
-    </div>
-  );
-}
-
-function CommentList({ content, createdAt, writer }: CommentResponse) {
-  return (
-    <div className={styles["comment-container"]}>
-      <div className={styles["comment-container__top"]}>
-        <p className={styles["comment-content"]}>{content}</p>
-        <button className={styles["comment-edit-btn"]}>
-          <Image src="/images/Articles/hamburger-icon.svg" alt="게시글 수정 버튼" width={24} height={24} />
-        </button>
-      </div>
-      <div className={styles["comment-container__bottom"]}>
-        <Image src="/images/Articles/profile.png" alt="댓글 작성자 프로필 이미지" width={32} height={32}></Image>
-        <div className={styles["comment-writer__info"]}>
-          <span className={styles["comment-writer__nickname"]}>{writer.nickname}</span>
-          <span className={styles["comment-writer__time"]}>{formatTimeAgo(createdAt)}</span>
-        </div>
-      </div>
     </div>
   );
 }
