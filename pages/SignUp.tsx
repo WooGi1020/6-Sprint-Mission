@@ -65,7 +65,8 @@ const SignUp = () => {
         router.push("/SignIn");
       }
     } catch (e) {
-      console.error(`Error : ${e}`);
+        alert(e);
+        }
     }
   };
 

@@ -33,11 +33,8 @@ export async function signUp(formData: SignUpFormData) {
     if (response.status === 201 || response.status === 200) {
       return response.data;
     }
-  } catch (e: unknown) {
-    const error = e as AxiosError;
-    if (error.response?.status === 400) {
-      alert("회원가입 실패!");
-    }
+  } catch (e: any) {
+    throw e.response?.data;
   }
 }
 
@@ -47,12 +44,7 @@ export async function signIn(formData: SignInFormData) {
     if (response.status === 201 || response.status === 200) {
       return response.data;
     }
-  } catch (e: unknown) {
-    if (e) {
-      const error = e as AxiosError;
-      if (error.response?.status === 400) {
-        alert("로그인 실패!");
-      }
-    }
+  } catch (e: any) {
+    throw e.response?.data.message;
   }
 }
