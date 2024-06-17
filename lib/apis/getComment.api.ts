@@ -20,10 +20,10 @@ export type commentWriterResponse = {
 } & WriterResponse;
 
 // 게시글 댓글 목록 받아오는 API
-export async function getArticleComments(id: string | string[] | undefined, limit: 10, nextCursor: number | null) {
+export async function getArticleComments(id: string | string[] | undefined, limit: 10, cursor: number | null) {
   try {
     const response: AxiosResponse<CommentsResponse> = await instance.get(
-      `/articles/${id}/comments?limit=${limit}&cursor=${nextCursor}`
+      `/articles/${id}/comments?limit=${limit}&cursor=${cursor}`
     );
     return response.data;
   } catch (e) {
