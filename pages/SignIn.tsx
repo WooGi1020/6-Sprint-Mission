@@ -1,11 +1,12 @@
 import styles from "@/styles/SignIn.module.css";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { signIn } from "@/lib/apis/sign.api";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { SubmitHandler, useForm } from "react-hook-form";
+import withAuth from "@/components/hoc/withAuth";
 
 interface IForm {
   email: string;
@@ -22,18 +23,7 @@ const SignIn = () => {
   });
 
   const [isPwShow, setIsPwShow] = useState(false);
-  const isMountedRef = useRef(false);
   const router = useRouter();
-
-  useEffect(() => {
-    if (localStorage.getItem("accessToken")) {
-      if (!isMountedRef.current) {
-        alert("이미 로그인한 상태입니다.");
-        isMountedRef.current = true;
-        router.push("/");
-      }
-    }
-  }, []);
 
   const handlePwShow = () => {
     setIsPwShow(!isPwShow);
@@ -164,5 +154,8 @@ const SignIn = () => {
   );
 };
 
-SignIn.noLayout = true;
-export default SignIn;
+const ProtectedSignIn = withAuth(SignIn);
+
+(ProtectedSignIn as any).noLayout = true;
+
+export default ProtectedSignIn;
